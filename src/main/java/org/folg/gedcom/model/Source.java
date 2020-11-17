@@ -20,7 +20,6 @@ package org.folg.gedcom.model;
  * User: Dallan
  * Date: 12/29/11
  * 
- * omit: data
  * add: media type, call number, type, uid, paren, italic, date
  */
 public class Source extends MediaContainer {
@@ -43,6 +42,7 @@ public class Source extends MediaContainer {
    private String _paren = null;
    private String _italic = null;
    private String date = null;
+   private SourceData data = null;
 
    public String getId() {
       return id;
@@ -200,6 +200,14 @@ public class Source extends MediaContainer {
       this.date = date;
    }
 
+   public SourceData getSourceData() {
+      return data;
+   }
+
+   public void setSourceData(SourceData data) {
+      this.data = data;
+   }
+
    public void accept(Visitor visitor) {
       if (visitor.visit(this)) {
          if (repo != null) {
@@ -207,6 +215,9 @@ public class Source extends MediaContainer {
          }
          if (chan != null) {
             chan.accept(visitor);
+         }
+         if (data != null) {
+            data.accept(visitor);
          }
          super.visitContainedObjects(visitor);
          visitor.endVisit(this);

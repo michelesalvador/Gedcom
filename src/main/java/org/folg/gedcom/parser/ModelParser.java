@@ -82,11 +82,11 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
    }
    
    public static enum Tag {
-      ABBR, ADDR, ADR1, ADR2, ADR3, _AKA, ALIA, ANCI, ASSO, AUTH,
+      ABBR, ADDR, ADR1, ADR2, ADR3, AGNC, _AKA, ALIA, ANCI, ASSO, AUTH,
       BLOB,
       CALN, CAUS, CHAN, CHAR, CHIL, CITY, CONC, CONT, COPR, CORP, CTRY,
       DATA, DATE, DESC, DESI, DEST,
-      EMAIL, _EMAIL, _EML,
+      EMAIL, _EMAIL, _EML, EVEN,
       FAM, FAMC, FAMS, FAX, _FILE, FILE, FONE, FORM, _FREL,
       GED, GEDC, GIVN,
       HEAD, HUSB,
@@ -135,7 +135,10 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
             case ADR3:
                obj = handleAdr3(tos);
                break;
-           case _AKA:
+            case AGNC:
+               obj = handleAgnc(tos);
+               break;
+            case _AKA:
                obj = handleAka(tos, tagName);
                break;
             case ALIA:
@@ -205,6 +208,9 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
             case _EMAIL:
             case _EML:
                obj = handleEmail(tos, tagName);
+               break;
+            case EVEN:
+               obj = handleEven(tos);
                break;
             case FAM:
                obj = handleFam(tos, id);
@@ -510,6 +516,13 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
       return null;
    }
 
+   private Object handleAgnc(Object tos) {
+      if (tos instanceof SourceData && ((SourceData)tos).getAgency() == null) {
+         return new FieldRef(tos, "Agency");
+      }
+      return null;
+   }
+
    private Object handleAka(Object tos, String tagName) {
       if (tos instanceof Name && ((Name)tos).getAka() == null) {
          ((Name)tos).setAkaTag(tagName);
@@ -686,6 +699,11 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
          ((Generator)tos).setGeneratorData(generatorData);
          return generatorData;
       }
+      else if (tos instanceof Source && ((Source)tos).getSourceData() == null) {
+         SourceData sourceData = new SourceData();
+         ((Source)tos).setSourceData(sourceData);
+         return sourceData;
+      }
       else if (tos instanceof SourceCitation) {
          // what a hack - if we come across a second data tag, set contents to separate
          if (((SourceCitation)tos).getDataTagContents() == SourceCitation.DataTagContents.DATE ||
@@ -720,7 +738,8 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
    private Object handleDate(Object tos) {
       if ((tos instanceof GeneratorData && ((GeneratorData)tos).getDate() == null) ||
           (tos instanceof Source && ((Source)tos).getDate() == null) ||
-          (tos instanceof EventFact && ((EventFact)tos).getDate() == null)) {
+          (tos instanceof EventFact && ((EventFact)tos).getDate() == null) ||
+          (tos instanceof DataEvent && ((DataEvent)tos).getDate() == null)) {
          return new FieldRef(tos, "Date");
       }
       else if (tos instanceof SourceCitation && ((SourceCitation)tos).getDate() == null) {
@@ -785,6 +804,15 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
             ((Repository)tos).setEmailTag(tagName);
          }
          return new FieldRef(tos, "Email");
+      }
+      return null;
+   }
+
+   private Object handleEven(Object tos) {
+      if (tos instanceof SourceData) {
+         DataEvent dataEvent = new DataEvent();
+         ((SourceData)tos).addDataEvent(dataEvent);
+         return dataEvent;
       }
       return null;
    }
@@ -1116,7 +1144,8 @@ public class ModelParser implements ContentHandler, org.xml.sax.ErrorHandler {
    }
 
    private Object handlePlac(Object tos) {
-      if (tos instanceof EventFact && ((EventFact)tos).getPlace() == null) {
+      if ((tos instanceof EventFact && ((EventFact)tos).getPlace() == null) ||
+          (tos instanceof DataEvent && ((DataEvent)tos).getPlace() == null)) {
          return new FieldRef(tos, "Place");
       }
       return null;

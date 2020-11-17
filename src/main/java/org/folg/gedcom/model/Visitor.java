@@ -28,6 +28,7 @@ public class Visitor {
    public boolean visit(Change change) {return true;}
    public boolean visit(CharacterSet characterSet) {return true;}
    public boolean visit(ChildRef childRef) {return true;}
+   public boolean visit(DataEvent dataEvent) {return true;}
    public boolean visit(DateTime dateTime) {return true;}
    public boolean visit(EventFact eventFact) {return true;}
    public boolean visit(String extensionKey, Object extension) {return true;}
@@ -51,6 +52,7 @@ public class Visitor {
    public boolean visit(RepositoryRef repositoryRef) {return true;}
    public boolean visit(Source source) {return true;}
    public boolean visit(SourceCitation sourceCitation) {return true;}
+   public boolean visit(SourceData sourceData) {return true;}
    public boolean visit(SpouseRef spouseRef, boolean isHusband) {return true;}
    public boolean visit(SpouseFamilyRef spouseFamilyRef) {return true;}
    public boolean visit(Submission submission) {return true;}

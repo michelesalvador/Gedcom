@@ -214,6 +214,15 @@ public class GedcomWriter extends Visitor {
    }
 
    @Override
+   public boolean visit(DataEvent dataEvent) {
+      write("EVEN", dataEvent.getValue());
+      stack.push(dataEvent);
+      writeString("DATE", dataEvent, dataEvent.getDate());
+      writeString("PLAC", dataEvent, dataEvent.getPlace());
+      return true;
+   }
+
+   @Override
    public boolean visit(DateTime dateTime) {
       write("DATE", dateTime.getValue());
       stack.push(dateTime);
@@ -549,6 +558,14 @@ public class GedcomWriter extends Visitor {
          writeString("DATE", sourceCitation, sourceCitation.getDate());
          writeString("TEXT", sourceCitation, sourceCitation.getText());
       }
+      return true;
+   }
+
+   @Override
+   public boolean visit(SourceData sourceData) {
+      write("DATA");
+      stack.push(sourceData);
+      writeString("AGNC", sourceData, sourceData.getAgency());
       return true;
    }
 
